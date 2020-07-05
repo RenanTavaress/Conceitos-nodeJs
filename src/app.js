@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-// const { uuid } = require("uuidv4");
+const { uuid } = require("uuidv4");
 
 const app = express();
 
@@ -11,23 +11,76 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-  // TODO
+	return response.json(repositories)
 });
 
 app.post("/repositories", (request, response) => {
-  // TODO
+	const { title, url, techs } = request.body;
+
+	const project = {
+		id: uuid(),
+		title,
+		url,
+		techs,
+		likes: 0
+	}
+
+	repositories.push(project)
+
+	return response.json(project)
+
 });
 
 app.put("/repositories/:id", (request, response) => {
-  // TODO
+	const { id } = request.params;
+	const { title, url, techs } = request.body;
+
+	const indexFind = repositories.findIndex(r => r.id === id);
+
+	if(indexFind < 0 ){
+		return response.status(400).json({error: 'Id not found'})
+	}
+
+	const project = {
+		id,
+		title,
+		url,
+		techs,
+		likes: repositories[indexFind].likes
+	}
+
+	repositories[indexFind] = project;
+
+	return response.json(project);
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+	const { id } = request.params;
+
+	const deleting = repositories.findIndex(r => r.id === id);
+
+	if(deleting < 0 ){
+		return response.status(400).json({error: 'Id not found'})
+	}
+
+	repositories.splice(deleting, 1)
+
+	return response.status(204).json({})
+
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+	const { id } = request.params;
+
+	const indexFind = repositories.findIndex(r => r.id === id);
+
+	if(indexFind < 0 ){
+		return response.status(400).json({error: 'Id not found'})
+	}
+
+	repositories[indexFind].likes += 1;
+
+	return response.json(repositories[indexFind])
 });
 
 module.exports = app;
